@@ -120,36 +120,53 @@ export class DespesaComponent {
   }
 
 
-  dadorForm() {
+  dadosForm() {
     return this.despesaForm.controls;
   }
 
   enviar() {
-    var dados = this.dadorForm();
+    var dados = this.dadosForm();
+    if (this.itemEdicao) {
+      this.itemEdicao.nome = dados["name"].value;
+      this.itemEdicao.nomePropriedade = "";
+      this.itemEdicao.mensagem = "";
+      this.itemEdicao.notificacoes = [];
 
-    let item = new Despesa();
-    item.nome = dados["name"].value;
-    item.valor = dados["valor"].value;
-    item.pago = this.checked;
-    item.dataVencimento = dados["data"].value;
-    item.idCategoria = parseInt(this.categoriaSelect.id);
+      this.despesaService.AtualizarDespesa(this.itemEdicao)
+        .subscribe((response: Despesa) => {
 
-    this.despesaService.AdicionarDespesa(item)
-      .subscribe((response: Despesa) => {
+          this.despesaForm.reset();
 
-        this.despesaForm.reset();
-        this.ListarCategoriasUsuario();
+          this.ListarDespesasUsuario();
 
-      }, (error) => console.error(error),
-        () => { })
+
+        }, (error) => console.error(error),
+          () => { })
+    }
+    else {
+      let item = new Despesa();
+      item.nome = dados["name"].value;
+      item.valor = dados["valor"].value;
+      item.pago = this.checked;
+      item.dataVencimento = dados["data"].value;
+      item.idCategoria = parseInt(this.categoriaSelect.id);
+
+      this.despesaService.AdicionarDespesa(item)
+        .subscribe((response: Despesa) => {
+
+          this.despesaForm.reset();
+          this.ListarCategoriasUsuario();
+
+        }, (error) => console.error(error),
+          () => { })
+    }
+
   }
 
 
   handleChangePago(item: any) {
     this.checked = item.checked as boolean;
   }
-
-
 
   ListarCategoriasUsuario() {
     this.categoriaService.ListarCategoriasUsuario(this.authService.getEmailUser())
@@ -167,10 +184,20 @@ export class DespesaComponent {
 
         this.listCategorias = listaCatagorias;
 
-      }
-
-      )
+      })
   }
 
+  itemEdicao: Despesa;
+  edicao(id: number) {
+    this.despesaService.ObterDespesa(id).subscribe((response: Despesa) => {
+      if (response) {
+        this.itemEdicao = response;
+        this.tipoTela = 2;
+        var dados = this.dadosForm();
+        dados["name"].setValue(this.itemEdicao.nome);
+        dados["valor"].setValue(this.itemEdicao.valor);
+      }
+    }, (error) => console.error(error), () => { })
 
+  }
 }

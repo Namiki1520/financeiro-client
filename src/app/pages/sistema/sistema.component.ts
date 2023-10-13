@@ -61,6 +61,7 @@ export class SistemaComponent {
 
 
   ListarSistemasUsuario() {
+    this.itemEdicao = null;
     this.tipoTela = 1;
 
     this.sistemaService.ListaSistemasUsuario(this.authService.getEmailUser())
@@ -94,45 +95,72 @@ export class SistemaComponent {
   }
 
 
-  dadorForm() {
+  dadosForm() {
     return this.sistemaForm.controls;
   }
 
   enviar() {
-    var dados = this.dadorForm();
+    var dados = this.dadosForm();
+    if (this.itemEdicao) {
 
-    let item = new SistemaFinanceiro();
-    item.nome = dados["name"].value;
+      this.itemEdicao.nome = dados["name"].value;
+      this.itemEdicao.nomePropriedade = "";
+      this.itemEdicao.mensagem = "";
+      this.itemEdicao.notificacoes = [];
 
-    item.id = 0;
-    item.mes = 0;
-    item.ano = 0;
-    item.diaFechamento = 0;
-    item.gerarCopiaDespesa = true;
-    item.mesCopia = 0;
-    item.anoCopia = 0;
+      this.sistemaService.AtualizarSistemaFinanceiro(this.itemEdicao)
+        .subscribe((response: SistemaFinanceiro) => {
 
-    this.sistemaService.AdicionarSistemaFinanceiro(item)
-      .subscribe((response: SistemaFinanceiro) => {
+          this.sistemaForm.reset();
 
-        this.sistemaForm.reset();
-
-        this.ListarSistemasUsuario();
-
-        this.sistemaService.CadastrarUsuarioNoSistema(response.id, this.authService.getEmailUser())
-          .subscribe((response: any) => {
-
-            this.ListarSistemasUsuario();
-
-          }, (error) => console.error(error),
-            () => { })
-
-      }, (error) => console.error(error),
-        () => { })
+          this.ListarSistemasUsuario();
 
 
+        }, (error) => console.error(error),
+          () => { })
+    }
+    else {
+
+      let item = new SistemaFinanceiro();
+      item.nome = dados["name"].value;
+
+      item.id = 0;
+      item.mes = 0;
+      item.ano = 0;
+      item.diaFechamento = 0;
+      item.gerarCopiaDespesa = true;
+      item.mesCopia = 0;
+      item.anoCopia = 0;
+
+      this.sistemaService.AdicionarSistemaFinanceiro(item)
+        .subscribe((response: SistemaFinanceiro) => {
+
+          this.sistemaForm.reset();
+
+          this.ListarSistemasUsuario();
+
+          this.sistemaService.CadastrarUsuarioNoSistema(response.id, this.authService.getEmailUser())
+            .subscribe((response: any) => {
+
+              this.ListarSistemasUsuario();
+
+            }, (error) => console.error(error),
+              () => { })
+
+        }, (error) => console.error(error),
+          () => { })
+    }
   }
 
-
-
+  itemEdicao: SistemaFinanceiro
+  edicao(id: number) {
+    this.sistemaService.ObterSistemaFinanceiro(id).subscribe((response: SistemaFinanceiro) => {
+      if (response) {
+        this.itemEdicao = response;
+        this.tipoTela = 2;
+        var dados = this.dadosForm();
+        dados["name"].setValue(this.itemEdicao.nome);
+      }
+    }, (error) => console.error(error), () => { })
+  }
 }

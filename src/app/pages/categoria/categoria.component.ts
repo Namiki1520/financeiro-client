@@ -46,8 +46,7 @@ export class CategoriaComponent {
     return result;
   }
 
-  cadastro()
-  {
+  cadastro() {
     this.tipoTela = 2;
     this.categoriaForm.reset();
   }
@@ -62,7 +61,7 @@ export class CategoriaComponent {
     this.page = event;
     this.config.currentPage = this.page;
   }
-  
+
 
   ListarCategoriasUsuario() {
     this.tipoTela = 1;
@@ -77,10 +76,10 @@ export class CategoriaComponent {
 
   }
 
-  
-  constructor(public menuService: MenuService, public formBuilder: FormBuilder, 
+
+  constructor(public menuService: MenuService, public formBuilder: FormBuilder,
     public sistemaService: SistemaService, public authService: AuthService,
-    public categoriaService : CategoriaService) {
+    public categoriaService: CategoriaService) {
   }
 
   listSistemas = new Array<SelectModel>();
@@ -92,7 +91,7 @@ export class CategoriaComponent {
 
   ngOnInit() {
     this.menuService.menuSelecionado = 3;
-    
+
     this.configpag();
     this.ListarCategoriasUsuario();
 
@@ -104,31 +103,44 @@ export class CategoriaComponent {
         }
       )
 
-      this.ListaSistemasUsuario();
+    this.ListaSistemasUsuario();
   }
 
 
-  dadorForm() {
+  dadosForm() {
     return this.categoriaForm.controls;
   }
 
   enviar() {
-    var dados = this.dadorForm();
-    let item = new Categoria();
-    item.nome = dados["name"].value;
-    item.id = 0;
-    item.idSistema = parseInt(this.sistemaSelect.id);
+    var dados = this.dadosForm();
+    if (this.itemEdicao) {
+      this.itemEdicao.nome = dados["name"].value;
+      this.itemEdicao.nomePropriedade = "";
+      this.itemEdicao.mensagem = "";
+      this.itemEdicao.notificacoes = [];
+      this.categoriaService.AtualizarCategoria(this.itemEdicao)
+        .subscribe((response: Categoria) => {
+          this.categoriaForm.reset();
+          this.ListarCategoriasUsuario();
+        }, (error) => console.error(error), () => { })
+    }
+    else {
+      let item = new Categoria();
+      item.nome = dados["name"].value;
+      item.id = 0;
+      item.idSistema = parseInt(this.sistemaSelect.id);
 
-    this.categoriaService.AdicionarCategoria(item)
-      .subscribe((response: Categoria) => {
+      this.categoriaService.AdicionarCategoria(item)
+        .subscribe((response: Categoria) => {
 
-        this.categoriaForm.reset();
+          this.categoriaForm.reset();
 
-        this.ListarCategoriasUsuario();
+          this.ListarCategoriasUsuario();
 
 
-      }, (error) => console.error(error),
-        () => { })
+        }, (error) => console.error(error),
+          () => { })
+    }
   }
 
   ListaSistemasUsuario() {
@@ -148,9 +160,21 @@ export class CategoriaComponent {
 
         this.listSistemas = lisSistemaFinanceiro;
 
-      }
+      })
+  }
 
-      )
+  itemEdicao: Categoria
+  edicao(id: number) {
+    debugger
+    this.categoriaService.ObterCategoria(id).subscribe((response: Categoria) => {
+      if (response) {
+        this.itemEdicao = response;
+        this.tipoTela = 2;
+        var dados = this.dadosForm();
+        dados["name"].setValue(this.itemEdicao.nome);
+      }
+    }, (error) => console.error(error), () => {
+    })
   }
 
 }

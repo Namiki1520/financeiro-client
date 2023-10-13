@@ -35,6 +35,11 @@ const routes: Routes = [
     loadChildren: () => import('./pages/despesa/despesa.module').then(m => m.DespesaModule),
     canActivate:[AuthGuard]
   },
+  {
+    path: 'receita',
+    loadChildren: () => import('./pages/receita/receita.module').then(m => m.ReceitaModule),
+    canActivate:[AuthGuard]
+  },
 ];
 
 @NgModule({

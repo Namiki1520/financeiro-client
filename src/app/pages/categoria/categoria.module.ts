@@ -8,6 +8,8 @@ import { CategoriaComponent } from './categoria.component';
 import { CategoriaRoutingModule } from './categoria-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { MatIconModule } from '@angular/material/icon';
 
 
 
@@ -22,7 +24,12 @@ import { NgSelectModule } from '@ng-select/ng-select';
             SidebarModule,
             FormsModule,
             ReactiveFormsModule,
-            NgSelectModule
+            NgSelectModule,
+
+            NgxPaginationModule,
+            FormsModule,
+            NgSelectModule,
+            MatIconModule
         ]
     }
 )

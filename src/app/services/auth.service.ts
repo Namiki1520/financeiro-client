@@ -54,7 +54,7 @@ export class AuthService {
         localStorage.setItem('emailUser', email);
     }
 
-    getEmailUser() {
+     getEmailUser() {
         var emailUserLogado = localStorage.getItem('emailUser');
         if (emailUserLogado) {
             return emailUserLogado;
